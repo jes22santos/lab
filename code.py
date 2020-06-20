@@ -3,11 +3,9 @@ import os
 
 nextLineIsATimestamp = False
 newBlock = False
-blocks = []
 block = []
 formattedLine = None
 ts = None
-index = 0
 
 if os.path.exists("new_destination.csv"):
   os.remove("new_destination.csv")
@@ -19,27 +17,25 @@ writer = open("new_destination.csv", "a")
 with open('source.log', 'r') as reader:
 
   for line in reader:
-    index +=1
 
-    formattedLine = line.replace(" ", ',').split(",")
-    formattedLine = filter(None, formattedLine)
-
+    formattedLine = ' '.join(line.split())
+    formattedLine = formattedLine.replace(" ", ',')
     if '----' in line:
       newBlock = True
-            
-    if newBlock is True:
-      newBlock = False
+      nextLineIsATimestamp = True      
     elif nextLineIsATimestamp:
-      # this is a new block, this is a timestamp
-      ts = formattedLine[0]
-      # reset the state
       nextLineIsATimestamp = False
+      # this is a new block, this is a timestamp
+      ts = formattedLine
+      # reset the state
+      newBlock = False
     else:
-      block.extend(formattedLine)
-      block.append(ts)
-      writer.write(",".join(block))
+      block = formattedLine + "," + ts
+      writer.write(block)
+      writer.write("\n")      
     
     formattedLine = None
+
 
 
 writer.close()
